@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MISTHUB.PL - Anarchia FFA</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card {
+      background: rgba(15, 15, 45, 0.85);
+      border: 2px solid #00ffaa44;
+      border-radius: 16px;
+      padding: 32px 28px;
+      width: 380px;
+      max-width: 94%;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(0, 255, 170, 0.18);
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+    }
+    .icon-container {
+      margin: 0 auto 20px;
+      width: 96px;
+      height: 96px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 16px;
+      border: 3px solid #00ffaa88;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2.1rem;
+      color: #00ffcc;
+      text-shadow: 0 0 12px #00ffaa80;
+    }
+    .subtitle {
+      margin: 0 0 24px;
+      font-size: 1.1rem;
+      color: #a0e0ff;
+    }
+    .status {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .online {
+      color: #00ff99;
+      text-shadow: 0 0 10px #00ff99;
+    }
+    .players {
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin: 8px 0 20px;
+      color: #00ffcc;
+      text-shadow: 0 0 20px #00ffcc80;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #00d4ff, #00ffaa);
+      color: #000;
+      font-weight: bold;
+      padding: 14px 0;
+      width: 100%;
+      border-radius: 50px;
+      margin: 10px 0;
+      font-size: 1.15rem;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 6px 20px rgba(0, 255, 170, 0.35);
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 255, 170, 0.5);
+    }
+    .btn.discord {
+      background: linear-gradient(90deg, #5865F2, #7289DA);
+      color: white;
+    }
+    .copy-ip {
+      background: #1a1a3a;
+      border: 1px solid #444488;
+      color: #aaffff;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 20px 0 10px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      user-select: none;
+      cursor: pointer;
+    }
+    .footer {
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: #7777aa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <!-- TWOJA IKONKA Z CATBOX – STATYCZNA, BEZ MIGOTANIA -->
+  <div class="icon-container">
+    <img id="server-icon" 
+         src="https://files.catbox.moe/u17f5o.png" 
+         alt="MISTHUB Server Icon"
+         onerror="this.src='https://via.placeholder.com/96/222/00ff99?text=MH';">
+  </div>
+
+  <h1>MISTHUB.PL</h1>
+  <div class="subtitle">NAJLEPSZY server anarchia FFA</div>
+
+  <div class="status">
+    Discord: <strong>dc.misthub.pl</strong>
+  </div>
+
+  <div id="status-line" class="status">Sprawdzam status...</div>
+
+  <div id="players-count" class="players">— / —</div>
+
+  <button id="copy-ip-btn" class="btn copy-ip">Kopiuj IP: <span id="ip-text">misthub.pl</span></button>
+
+  <a href="https://dc.misthub.pl" target="_blank" class="btn discord">DOŁĄCZ DO DISCORDA</a>
+
+  <div class="footer">Anarchia bez zasad • Kopiuj IP i wchodź!</div>
+</div>
+
+<script>
+  const IP = "misthub.pl";
+  const API_URL = `https://api.mcsrvstat.us/3/${IP}`;  // To API widzi Twój serwer (1/200 online)
+
+  const statusEl   = document.getElementById("status-line");
+  const playersEl  = document.getElementById("players-count");
+  const copyBtn    = document.getElementById("copy-ip-btn");
+
+  // IKONKA NIE JEST NADPISYWANA – statyczna z catbox!
+
+  // Tylko status + gracze
+  fetch(API_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (data.online) {
+        statusEl.textContent = "ONLINE";
+        statusEl.className = "status online";
+
+        const p = data.players;
+        playersEl.textContent = `${p.online} / ${p.max}`;
+      } else {
+        statusEl.textContent = "OFFLINE";
+        statusEl.className = "status";
+        playersEl.textContent = "0 / 0";
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      statusEl.textContent = "Błąd połączenia";
+      playersEl.textContent = "— / —";
+    });
+
+  // Kopiowanie IP
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(IP).then(() => {
+      const oldText = copyBtn.innerHTML;
+      copyBtn.innerHTML = "Skopiowano! ✓";
+      setTimeout(() => {
+        copyBtn.innerHTML = oldText;
+      }, 1800);
+    });
+  });
+</script>
+
+</body>
+</html>
